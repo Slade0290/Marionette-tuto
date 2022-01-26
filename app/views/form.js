@@ -1,27 +1,30 @@
-var Marionette = require('backbone.marionette')
+import Marionette from 'backbone.marionette'
+import FormTemplate from '../templates/form.html'
 
-var FormView = Marionette.View.extend({
-  tagName: 'form',
-  template: require('../templates/form.html'),
+export default class FormView extends Marionette.LayoutView {
+  constructor(options) {
+    options.template = FormTemplate
+    options.tagName = 'form'
 
-  events: {
-    submit: 'handleSubmit'
-  },
+    super(options)
+  }
 
-  handleSubmit: function() {
-    console.log('handleSubmit')
-    this.trigger('add:item', this.ui.assignee.val(), this.ui.text.val())
-    return false
-  },
+  triggers() {
+    return {
+      submit: 'add:todo:item'
+    }
+  }
 
-  modelEvents: {
-    change: 'render'
-  },
+  modelEvents() {
+    return {
+      change: 'render'
+    }
+  }
 
-  ui: {
-    assignee: '#id_assignee',
-    text: '#id_text'
-  },
-})
-
-module.exports = FormView
+  ui() {
+    return {
+      assignee: '#id_assignee',
+      text: '#id_text'
+    }
+  }
+}

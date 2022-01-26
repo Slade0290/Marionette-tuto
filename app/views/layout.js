@@ -1,48 +1,47 @@
-var Backbone = require('backbone')
-var Marionette = require('backbone.marionette')
+import Marionette from 'backbone.marionette'
 
-var FormView = require('./form')
-var ListView = require('./list')
+import FormView from './form'
+import ListView from './list'
+import LayoutTemplate from '../templates/layout.html'
 
-var Layout = Marionette.View.extend({
-  el: '#app-hook',
+export default class TodoView extends Marionette.LayoutView {
+  constructor(options) {
+    options.template = LayoutTemplate
+    options.el = '#app-hook'
+    options.regions = {
+      form: '.form',
+      list: '.list'
+    }
+    super(options)
+  }
 
-  template: require('../templates/layout.html'),
-
-  regions: {
-    form: '.form',
-    list: '.list'
-  },
-
-  collectionEvents: {
-    add: 'itemAdded'
-  },
-
-  initialize: function() {
-    this.collection = new Backbone.Collection()
-    this.model = new Backbone.Model()
-  },
-
-  onShow: function() {
-    var formView = new FormView({model: this.model})
-    formView.on('add:item', this.onChildviewAddItem, this)
-    this.listView = new ListView()
-
+  onRender() {
+    const formView = new FormView({model: this.model})
+    const listView = new ListView({collection: this.collection})
     this.showChildView('form', formView)
-    this.showChildView('list', this.listView)
-  },
+    this.showChildView('list', listView)
+  }
 
-  onChildviewAddItem: function(assignee, text) {
-    console.log("addItem - assignee : ", assignee)
-    this.listView.addItem(assignee, text)
-  },
+  collectionEvents() {
+    return { add: 'itemAdded' }
+  }
 
-  itemAdded: function() {
+  onChildviewAddTodoItem(child) {
+    this.model.set({
+      assignee: child.ui.assignee.val(),
+      text: child.ui.text.val()
+    }, {validate: true})
+
+    if(this.model.isValid()) {
+      const items = this.model.pick('assignee', 'text')
+      this.collection.add(items)
+    }
+  }
+
+  itemAdded() {
     this.model.set({
       assignee: '',
-      text: '',
+      text: ''
     })
   }
-})
-
-module.exports = Layout
+}

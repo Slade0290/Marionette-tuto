@@ -1,25 +1,20 @@
-var Backbone = require('backbone')
-var Marionette = require('backbone.marionette')
+import Marionette from 'backbone.marionette'
+import TodoItemTemplate from '../templates/todoitem.html'
 
-class TodoItem extends Marionette.View {
-  tagName = 'li'
-  template = require('../templates/todoitem.html')
-}
+class Todo extends Marionette.LayoutView {
+  constructor(options) {
+    options.template = TodoItemTemplate
+    options.tagName = 'li'
 
-class TodoList extends Marionette.CollectionView {
-  tagName = 'ul'
-  childView = TodoItem
-
-  initialize () {
-    this.collection = new Backbone.Collection()
-  }
-
-  addItem (assignee, text) {
-    this.collection.add({
-      assignee: assignee,
-      text: text
-    })
+    super(options)
   }
 }
 
-module.exports = TodoList
+export default class ListView extends Marionette.CollectionView {
+  constructor(options) {
+    options.tagName = 'ul'
+    options.childView = Todo
+
+    super(options)
+  }
+}

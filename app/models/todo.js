@@ -1,14 +1,16 @@
-var Backbone = require('backbone')
+import Backbone from 'backbone'
 
-var Todo = Backbone.Model.extend({
-  default: {
-    assignee: '',
-    text: ''
-  },
+export default class TodoModel extends Backbone.Model {
+  default() {
+    return {
+      assignee: '',
+      text: ''
+    }
+  }
 
-  validate: function(attrs) {
-    var errors = {}
-    var hasError = false
+  validate(attrs) {
+    const errors = {}
+    let hasError = false
     if(!attrs.assignee) {
       errors.assignee = 'assignee must be set'
       hasError = true
@@ -17,11 +19,6 @@ var Todo = Backbone.Model.extend({
       errors.text = 'text must be set'
       hasError = true
     }
-
-    if(hasError) {
-      return errors
-    }
+    if(hasError) return errors
   }
-})
-
-module.exports = Todo
+}
