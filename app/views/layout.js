@@ -17,31 +17,13 @@ export default class TodoView extends Marionette.LayoutView {
 
   onRender() {
     const formView = new FormView({model: this.model})
-    const listView = new ListView({collection: this.collection})
+    formView.on('add:item', this.onChildviewAddItem, this)
+    this.listView = new ListView({collection: this.collection})
     this.showChildView('form', formView)
-    this.showChildView('list', listView)
+    this.showChildView('list', this.listView)
   }
 
-  collectionEvents() {
-    return { add: 'itemAdded' }
-  }
-
-  onChildviewAddTodoItem(child) {
-    this.model.set({
-      assignee: child.ui.assignee.val(),
-      text: child.ui.text.val()
-    }, {validate: true})
-
-    if(this.model.isValid()) {
-      const items = this.model.pick('assignee', 'text')
-      this.collection.add(items)
-    }
-  }
-
-  itemAdded() {
-    this.model.set({
-      assignee: '',
-      text: ''
-    })
+  onChildviewAddItem(assignee, text) {
+    this.listView.addItem(assignee,text)
   }
 }

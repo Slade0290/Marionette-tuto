@@ -1,4 +1,5 @@
 import Marionette from 'backbone.marionette'
+import Backbone from 'backbone'
 import TodoItemTemplate from '../templates/todoitem.html'
 
 class Todo extends Marionette.LayoutView {
@@ -16,5 +17,12 @@ export default class ListView extends Marionette.CollectionView {
     options.childView = Todo
 
     super(options)
+  }
+
+  addItem(assignee, text) {
+    this.collection.add({
+      assignee: assignee,
+      text: text
+    })
   }
 }

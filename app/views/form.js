@@ -9,16 +9,15 @@ export default class FormView extends Marionette.LayoutView {
     super(options)
   }
 
-  triggers() {
+  events() {
     return {
-      submit: 'add:todo:item'
+      submit: 'handleSubmit'
     }
   }
 
-  modelEvents() {
-    return {
-      change: 'render'
-    }
+  handleSubmit() {
+    this.trigger('add:item', this.ui.assignee.val(), this.ui.text.val())
+    return false
   }
 
   ui() {
