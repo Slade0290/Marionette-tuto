@@ -18,9 +18,7 @@ export class TodoApp extends Marionette.Application {
       model: new TodoModel()
     })
     todoView.render()
-    const myView = new MyView({
-      model: new Backbone.Model()
-    })
+    const myView = new MyView()
     myView.render()
   }
 }

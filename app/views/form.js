@@ -1,5 +1,5 @@
 import Marionette from 'backbone.marionette'
-import FormTemplate from '../templates/form.html'
+import FormTemplate from 'templates/form.html'
 
 export default class FormView extends Marionette.LayoutView {
   constructor(options) {

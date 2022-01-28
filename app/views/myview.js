@@ -2,14 +2,13 @@ import Marionette from 'backbone.marionette'
 import MyTemplate from '../templates/mytemplate.html'
 
 export default class MyView extends Marionette.LayoutView {
-  constructor(options) {
-    options.template = MyTemplate
-    options.el = '#my-app-hook'
-    console.log("options");
-    console.log(options);
-    super(options)
+  template() {
+    return MyTemplate
   }
 
+  el() {
+    return '#my-app-hook'
+  }
   onRender() {
     console.log("onRender");
     const view = new MyView()
@@ -36,6 +35,7 @@ export default class MyView extends Marionette.LayoutView {
   }
 
   changeDiv() {
+    console.log(this.ui.input);
     var text = this.ui.input.val()
     this.ui.content.text(text)
   }
