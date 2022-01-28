@@ -15,7 +15,7 @@
   \***********************/
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __webpack_require__) => {
 
-eval("var Backbone = __webpack_require__(/*! backbone */ \"./node_modules/backbone/backbone.js\")\nvar Marionette = __webpack_require__(/*! backbone.marionette */ \"./node_modules/backbone.marionette/lib/core/backbone.marionette.js\")\nvar TodoModel = __webpack_require__(/*! ./models/todo */ \"./app/models/todo.js\")\n\nvar TodoItem = Marionette.LayoutView.extend({\n  tagName: 'li',\n  template: __webpack_require__(/*! ./templates/todoitem.html */ \"./app/templates/todoitem.html\")\n})\n\nvar TodoList = Marionette.CompositeView.extend({\n  el: '#app-hook',\n  template: __webpack_require__(/*! ./templates/todolist.html */ \"./app/templates/todolist.html\"),\n\n  childView: TodoItem,\n  childViewContainer: 'ul',\n\n  ui: {\n    assignee: '#id_assignee',\n    form: 'form',\n    text: '#id_text'\n  },\n\n  triggers: {\n    'submit @ui.form': 'add:todo:item'\n  },\n\n  collectionEvents: {\n    add: 'itemAdded'\n  },\n\n  modelEvents: {\n    change: 'render'\n  },\n\n  onAddTodoItem: function() {\n    this.model.set({\n      assignee: this.ui.assignee.val(),\n      text: this.ui.text.val()\n    })\n\n    if(this.model.isValid()) {\n      var items = this.model.pick('assignee', 'text')\n      this.collection.add(items)\n    }\n  },\n\n  itemAdded: function() {\n    console.log(\"Don't clear the inputs we need it for testing purposes !\");\n    // this.ui.assignee.val('')\n    // this.ui.text.val('')\n    // -- or with model --\n    // this.model.set({\n    //   assignee: '',\n    //   text: ''\n    // })\n  }\n})\n\nvar todo = new TodoList({\n  collection: new Backbone.Collection([\n      {assignee: 'Scott', text: 'Write a book about Marionette'},\n      {assignee: 'Andrew', text: 'Do some coding'}\n    ]),\n    model: new TodoModel()\n})\n\ntodo.render()\n\n\n//# sourceURL=webpack://marionette-0/./app/driver.js?");
+eval("var Marionette = __webpack_require__(/*! backbone.marionette */ \"./node_modules/backbone.marionette/lib/core/backbone.marionette.js\");\nvar TodoView = __webpack_require__(/*! ./views/layout */ \"./app/views/layout.js\");\nvar ToDoModel = __webpack_require__(/*! ./models/todo */ \"./app/models/todo.js\");\n\n\nvar initialData = [\n  {assignee: 'Scott', text: 'Write a book about Marionette'},\n  {assignee: 'Andrew', text: 'Do some coding'}\n];\n\nvar app = new Marionette.Application({\n  onStart: function(options) {\n    var todo = new TodoView({\n      collection: new Backbone.Collection(options.initialData),\n      model: new ToDoModel()\n    });\n    todo.render();\n    todo.triggerMethod('show');\n  }\n});\n\napp.start({initialData: initialData});\n\n\n//# sourceURL=webpack://marionette-0/./app/driver.js?");
 
 /***/ }),
 
@@ -26,6 +26,36 @@ eval("var Backbone = __webpack_require__(/*! backbone */ \"./node_modules/backbo
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 eval("var Backbone = __webpack_require__(/*! backbone */ \"./node_modules/backbone/backbone.js\")\n\nvar Todo = Backbone.Model.extend({\n  default: {\n    assignee: '',\n    text: ''\n  },\n\n  validate: function(attrs) {\n    var errors = {}\n    var hasError = false\n    if(!attrs.assignee) {\n      errors.assignee = 'assignee must be set'\n      hasError = true\n    }\n    if(!attrs.text) {\n      errors.text = 'text must be set'\n      hasError = true\n    }\n\n    if(hasError) {\n      return errors\n    }\n  }\n})\n\nmodule.exports = Todo\n\n\n//# sourceURL=webpack://marionette-0/./app/models/todo.js?");
+
+/***/ }),
+
+/***/ "./app/views/form.js":
+/*!***************************!*\
+  !*** ./app/views/form.js ***!
+  \***************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+eval("// views/form.js\nvar Marionette = __webpack_require__(/*! backbone.marionette */ \"./node_modules/backbone.marionette/lib/core/backbone.marionette.js\");\n\nvar FormView = Marionette.LayoutView.extend({\n  tagName: 'form',\n  template: __webpack_require__(/*! ../templates/form.html */ \"./app/templates/form.html\"),\n\n  triggers: {\n    submit: 'add:todo:item'\n  },\n\n  modelEvents: {\n    change: 'render'\n  },\n\n  ui: {\n    assignee: '#id_assignee',\n    text: '#id_text'\n  }\n});\n\n\nmodule.exports = FormView;\n\n\n//# sourceURL=webpack://marionette-0/./app/views/form.js?");
+
+/***/ }),
+
+/***/ "./app/views/layout.js":
+/*!*****************************!*\
+  !*** ./app/views/layout.js ***!
+  \*****************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+eval("var Marionette = __webpack_require__(/*! backbone.marionette */ \"./node_modules/backbone.marionette/lib/core/backbone.marionette.js\");\n\nvar FormView = __webpack_require__(/*! ./form */ \"./app/views/form.js\");\nvar ListView = __webpack_require__(/*! ./list */ \"./app/views/list.js\");\n\n\nvar Layout = Marionette.LayoutView.extend({\n  el: '#app-hook',\n\n  template: __webpack_require__(/*! ../templates/layout.html */ \"./app/templates/layout.html\"),\n\n  regions: {\n    form: '.form',\n    list: '.list'\n  },\n\n  collectionEvents: {\n    add: 'itemAdded'\n  },\n\n  onShow: function() {\n    var formView = new FormView({model: this.model});\n    var listView = new ListView({collection: this.collection});\n\n    this.showChildView('form', formView);\n    this.showChildView('list', listView);\n  },\n\n  onChildviewAddTodoItem: function(child) {\n    this.model.set({\n      assignee: child.ui.assignee.val(),\n      text: child.ui.text.val()\n    }, {validate: true});\n\n    var items = this.model.pick('assignee', 'text');\n    this.collection.add(items);\n  },\n\n  itemAdded: function() {\n    this.model.set({\n      assignee: '',\n      text: ''\n    });\n  }\n});\n\nmodule.exports = Layout;\n\n\n//# sourceURL=webpack://marionette-0/./app/views/layout.js?");
+
+/***/ }),
+
+/***/ "./app/views/list.js":
+/*!***************************!*\
+  !*** ./app/views/list.js ***!
+  \***************************/
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+eval("// views/list.js\nvar Marionette = __webpack_require__(/*! backbone.marionette */ \"./node_modules/backbone.marionette/lib/core/backbone.marionette.js\");\n\nvar ToDo = Marionette.LayoutView.extend({\n  tagName: 'li',\n  template: __webpack_require__(/*! ../templates/todoitem.html */ \"./app/templates/todoitem.html\")\n});\n\n\nvar TodoList = Marionette.CollectionView.extend({\n  tagName: 'ul',\n  childView: ToDo\n});\n\n\nmodule.exports = TodoList;\n\n\n//# sourceURL=webpack://marionette-0/./app/views/list.js?");
 
 /***/ }),
 
@@ -79,6 +109,26 @@ eval("var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!\n * jQ
 
 /***/ }),
 
+/***/ "./app/templates/form.html":
+/*!*********************************!*\
+  !*** ./app/templates/form.html ***!
+  \*********************************/
+/***/ ((module) => {
+
+eval("module.exports = function(obj){\nvar __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};\nwith(obj||{}){\n__p+='<label for=\"id_text\">Todo Text</label>\\n<input type=\"text\" name=\"text\" id=\"id_text\" value=\"zefqzefgzfg\" />\\n<label for=\"id_assignee\">Assign to</label>\\n<input type=\"text\" name=\"assignee\" id=\"id_assignee\" value=\"qegqsrgs\"/>\\n\\n<button id=\"btn-add\">Add Item</button>\\n';\n}\nreturn __p;\n};\n\n\n//# sourceURL=webpack://marionette-0/./app/templates/form.html?");
+
+/***/ }),
+
+/***/ "./app/templates/layout.html":
+/*!***********************************!*\
+  !*** ./app/templates/layout.html ***!
+  \***********************************/
+/***/ ((module) => {
+
+eval("module.exports = function(obj){\nvar __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};\nwith(obj||{}){\n__p+='<div class=\"form\"></div>\\n<div class=\"list\"></div>\\n';\n}\nreturn __p;\n};\n\n\n//# sourceURL=webpack://marionette-0/./app/templates/layout.html?");
+
+/***/ }),
+
 /***/ "./app/templates/todoitem.html":
 /*!*************************************!*\
   !*** ./app/templates/todoitem.html ***!
@@ -86,16 +136,6 @@ eval("var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!\n * jQ
 /***/ ((module, __unused_webpack_exports, __webpack_require__) => {
 
 eval("/* provided dependency */ var _ = __webpack_require__(/*! underscore */ \"./node_modules/underscore/modules/index-all.js\");\nmodule.exports = function(obj){\nvar __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};\nwith(obj||{}){\n__p+=''+\n((__t=( text ))==null?'':_.escape(__t))+\n' &mdash; '+\n((__t=( assignee ))==null?'':_.escape(__t))+\n'\\n';\n}\nreturn __p;\n};\n\n\n//# sourceURL=webpack://marionette-0/./app/templates/todoitem.html?");
-
-/***/ }),
-
-/***/ "./app/templates/todolist.html":
-/*!*************************************!*\
-  !*** ./app/templates/todolist.html ***!
-  \*************************************/
-/***/ ((module) => {
-
-eval("module.exports = function(obj){\nvar __t,__p='',__j=Array.prototype.join,print=function(){__p+=__j.call(arguments,'');};\nwith(obj||{}){\n__p+='<form>\\n  <label for=\"id_text\">Todo Text</label>\\n  <input type=\"text\" name=\"text\" id=\"id_text\" value=\"zomfeuhqzeliufh\"/>\\n  <label for=\"id_assignee\">Assign to</label>\\n  <input type=\"text\" name=\"assignee\" id=\"id_assignee\" value=\"zeufhqomefzh\"/>\\n\\n  <button id=\"btn-add\">Add Item</button>\\n</form>\\n<ul></ul>\\n';\n}\nreturn __p;\n};\n\n\n//# sourceURL=webpack://marionette-0/./app/templates/todolist.html?");
 
 /***/ }),
 
