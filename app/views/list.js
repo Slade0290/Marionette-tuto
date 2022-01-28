@@ -1,16 +1,21 @@
-// views/list.js
-var Marionette = require('backbone.marionette');
+var Marionette = require('backbone.marionette')
 
-var ToDo = Marionette.LayoutView.extend({
+var Item = Marionette.LayoutView.extend({
   tagName: 'li',
-  template: require('../templates/todoitem.html')
+  template: require('../templates/item.html')
 });
 
-
-var TodoList = Marionette.CollectionView.extend({
+var List = Marionette.CollectionView.extend({
   tagName: 'ul',
-  childView: ToDo
+  childView: Item,
+
+  collectionEvents: {
+    add: 'itemAdded'
+  },
+
+  itemAdded: function(collection) {
+    alert('New item added');
+  }
 });
 
-
-module.exports = TodoList;
+module.exports = List;
